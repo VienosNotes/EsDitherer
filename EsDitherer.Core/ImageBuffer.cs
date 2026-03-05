@@ -10,10 +10,64 @@ public struct PixelF
     public float R;
     public float G;
     public float B;
+
+    public PixelF GetDiffFrom(PixelF other)
+    {
+        return new PixelF()
+        {
+            R = this.R - other.R,
+            G = this.G - other.G,
+            B = this.B - other.B,
+        };
+    }
+
+    public PixelF Multiply(float multiplier)
+    {
+        return new PixelF()
+        {
+            R = this.R * multiplier,
+            G = this.G * multiplier,
+            B = this.B * multiplier,
+        };
+    }
+
+    public PixelF Add(PixelF other)
+    {
+        return new PixelF()
+        {
+            R = this.R + other.R,
+            G = this.G + other.G,
+            B = this.B + other.B,
+        };
+    }
+    
+    public float GetNorm()
+    {
+        return (float)Math.Sqrt(R * R + G * G + B * B);
+    }
+}
+
+public struct PixelY
+{
+    public float Y;
+    public float Cb;
+    public float Cr;
+
+    public static PixelY FromRGB(PixelF src)
+    {
+        return new PixelY()
+        {
+            Y = (src.R * 0.299f) +  (src.G * 0.587f) +  (src.B * 0.114f),
+            Cb = (src.R * -0.1687f) + (src.G * -0.3313f) +  (src.B * 0.5f),
+            Cr = (src.R * 0.5f) + (src.G * -0.4817f) + (src.B * -0.80313f)
+        };
+    }
+        
 }
 
 public static class MaskValue
 {
+    public const int Invalid = 255;
     public const int Inactive = 0;
     public const int Active = 1;
 }
@@ -24,10 +78,21 @@ public class ImageBuffer(int width, int height)
     public byte[] Mask { get; } = new byte[width * height];
     public int Width { get; } = width;
     public int Height { get; } = height;
+    public byte InactiveColorIndex { get; set; }
+     
 
     public int IndexOf(int x, int y) => y * Width + x;
     public ref PixelF this[int x, int y] => ref Pixels[y * Width + x];
-    public byte GetMask(int x, int y) => Mask[y * Width + x];
+
+    public byte GetMask(int x, int y)
+    {
+        if (x < 0 || x >= Width || y < 0 || y >= Height)
+        {
+            return MaskValue.Invalid;
+        }
+        
+        return Mask[y * Width + x];
+    }
 
     public void WriteImage(string filename)
     {
@@ -122,12 +187,26 @@ public class ImageBuffer(int width, int height)
                     b = b * a + 1f * (1f - a);
                 }
 
-                buf.Pixels[rowBase + (img.Width - x -1)] = new PixelF { R = r, G = g, B = b };
+                buf.Pixels[rowBase + x] = new PixelF { R = r, G = g, B = b };
             }
         }
 
         return buf;
     }
+
+    public ImageBuffer GetNextBuffer()
+    {
+        var newbuf = new ImageBuffer(Width, Height)
+        {
+            InactiveColorIndex = InactiveColorIndex,
+        };
+
+        Array.Copy(this.Pixels, 0, newbuf.Pixels, 0,  this.Pixels.Length);
+        Array.Copy(this.Mask, 0, newbuf.Mask, 0, this.Mask.Length);
+        
+        return newbuf;
+    }
+
 }
 
 public class CommittableImageBuffer(int width, int height) : ImageBuffer(width, height)
