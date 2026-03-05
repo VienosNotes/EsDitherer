@@ -122,10 +122,15 @@ public class ImageBuffer(int width, int height)
                     b = b * a + 1f * (1f - a);
                 }
 
-                buf.Pixels[rowBase + x] = new PixelF { R = r, G = g, B = b };
+                buf.Pixels[rowBase + (img.Width - x -1)] = new PixelF { R = r, G = g, B = b };
             }
         }
 
         return buf;
     }
+}
+
+public class CommittableImageBuffer(int width, int height) : ImageBuffer(width, height)
+{
+    public byte[] PaletteIndices { get; } = new byte[width * height];
 }

@@ -9,7 +9,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        var rawBuf = ImageBuffer.LoadFromFile("img/test1.jpg");
+        var rawBuf = ImageBuffer.LoadFromFile("img/kanzen_rikai.png");
         var resizer = new FitInsideResizer();
         var resized = resizer.Resize(rawBuf);
 

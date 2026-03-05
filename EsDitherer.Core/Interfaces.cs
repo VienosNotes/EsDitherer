@@ -40,5 +40,5 @@ public interface IQuantizer
 
 public interface IDitherer
 {
-    public ImageBuffer Dither(ImageBuffer src, IQuantizer quantizer);
+    public CommittableImageBuffer Dither(ImageBuffer src, IQuantizer quantizer);
 }

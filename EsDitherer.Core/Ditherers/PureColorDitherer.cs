@@ -4,9 +4,9 @@ namespace EsDitherer.Core.Ditherers;
 
 public class PureColorDitherer : IDitherer
 {
-    public ImageBuffer Dither(ImageBuffer src, IQuantizer quantizer)
+    public CommittableImageBuffer Dither(ImageBuffer src, IQuantizer quantizer)
     {
-        var output = new ImageBuffer(src.Width, src.Height);
+        var output = new CommittableImageBuffer(src.Width, src.Height);
         
         var serialLength = src.Width * src.Height;
         for (var sPos = 0; sPos < serialLength; sPos++)
@@ -17,7 +17,9 @@ public class PureColorDitherer : IDitherer
             }
             else
             {
-                output.Pixels[sPos] = quantizer.GetColor(quantizer.Quantize(src.Pixels[sPos]));
+                var paletteIndex = quantizer.Quantize(src.Pixels[sPos]);
+                output.Pixels[sPos] = quantizer.GetColor(paletteIndex);
+                output.PaletteIndices[sPos] = (byte)paletteIndex;
             }
 
             output.Mask[sPos] = src.Mask[sPos];

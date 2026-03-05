@@ -17,6 +17,10 @@
       <AdditionalFiles Include="img\test1.jpg">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </AdditionalFiles>
+      <None Remove="img\kanzen_rikai.png" />
+      <AdditionalFiles Include="img\kanzen_rikai.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </AdditionalFiles>
     </ItemGroup>
 
 </Project>
